@@ -1,4 +1,4 @@
-package top.watilion.publisher.po;
+package top.watilion.publisher.vo;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 
 /**
  * @author watilion
- * @date 2022/6/7 22:47
+ * @date 2022/6/8 00:26
  */
+
 @Data
 @Schema(description = "用户持久化对象")
 @TableName("user")
-public class UserPo {
+public class UserVo {
 
-    @TableId
     @Schema(name = "id", description = "用户ID")
     private Long id;
 
@@ -25,9 +25,6 @@ public class UserPo {
 
     @Schema(description = "用户名")
     private String username;
-
-    @Schema(description = "密码")
-    private String password;
 
     @Schema(description = "登录次数")
     private Integer loginTimes;
@@ -47,6 +44,4 @@ public class UserPo {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-    @Schema(description = "删除标识，0-未删除，1-已删除")
-    private Integer delFlag;
 }
