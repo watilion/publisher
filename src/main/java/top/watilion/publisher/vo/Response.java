@@ -1,5 +1,6 @@
 package top.watilion.publisher.vo;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.watilion.publisher.enums.ResultCode;
@@ -56,6 +57,11 @@ public class Response<T> {
     }
 
     public Response<T> success(T data, Pagination pagination) {
+        return result(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.isSuccess(), ResultCode.SUCCESS.getMessage(), data, pagination);
+    }
+
+    public Response<T> success(T data, Page page) {
+        Pagination pagination = new Pagination(page);
         return result(ResultCode.SUCCESS.getCode(), ResultCode.SUCCESS.isSuccess(), ResultCode.SUCCESS.getMessage(), data, pagination);
     }
 

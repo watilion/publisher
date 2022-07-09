@@ -1,5 +1,6 @@
 package top.watilion.publisher.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @TableName("user")
 public class UserPo {
 
-    @TableId
+    @TableId(type = IdType.AUTO)
     @Schema(name = "id", description = "用户ID")
     private Long id;
 
@@ -47,6 +48,6 @@ public class UserPo {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-    @Schema(description = "删除标识，0-未删除，1-已删除")
-    private Integer delFlag;
+    @Schema(description = "用户状态，0-未删除，1-已删除")
+    private Integer status;
 }

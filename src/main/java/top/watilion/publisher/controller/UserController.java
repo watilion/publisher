@@ -1,15 +1,23 @@
 package top.watilion.publisher.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import top.watilion.publisher.mapstruct.UserMapStruct;
+import top.watilion.publisher.params.UserPageParams;
 import top.watilion.publisher.po.UserPo;
 import top.watilion.publisher.service.UserService;
 import top.watilion.publisher.vo.Response;
+import top.watilion.publisher.vo.UserAddVo;
+import top.watilion.publisher.vo.UserUpdateVo;
+import top.watilion.publisher.vo.UserVo;
+
+import java.util.List;
 
 /**
  * @author watilion
@@ -30,9 +38,56 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(description="根据ID获取用信息")
-    public Response<UserPo> get(@PathVariable Long id){
-        Response<UserPo> response = new Response<>();
-        UserPo userPo = userService.getById(id);
-        return response.success(userPo);
+    public Response<UserVo> get(@PathVariable Long id){
+        Response<UserVo> response = new Response<>();
+        UserVo userVo = userService.getById(id);
+        if (userVo == null) {
+            response.fail("用户ID不存在");
+        } else {
+            response.success(userVo);
+        }
+        return response;
+    }
+
+    @PostMapping("/page")
+    @Operation(description = "分页查询用户信息")
+    public Response<List<UserVo>> page(UserPageParams userPageParams) {
+        Response<List<UserVo>> response = new Response<>();
+        Page<UserPo> userPoPage = new Page<>(userPageParams.getCurrent(), userPageParams.getPageSize());
+        LambdaQueryWrapper<UserPo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(userPageParams.getName()), UserPo::getName, userPageParams.getName())
+                .like(StringUtils.isNotBlank(userPageParams.getUsername()), UserPo::getUsername, userPageParams.getUsername())
+                .eq(userPageParams.getStatus() != null, UserPo::getStatus, userPageParams.getStatus());
+        userPoPage = userService.page(userPoPage,queryWrapper);
+        List<UserVo> userVoList = UserMapStruct.INSTANCE.poListToVoList(userPoPage.getRecords());
+        return response.success(userVoList,userPoPage);
+    }
+
+    @PutMapping("/add")
+    @Operation(description = "用户新增")
+    public Response<UserVo> add(@RequestBody @Validated UserAddVo userSaveVo) {
+        Response<UserVo> response = new Response<>();
+        UserVo userVo = userService.add(userSaveVo);
+        return response.success(userVo);
+    }
+
+    @PostMapping("/update")
+    @Operation(description = "用户更新")
+    public Response<UserVo> update(UserUpdateVo userUpdateVo) {
+        Response<UserVo> response = new Response<>();
+        UserVo userVo = userService.update(userUpdateVo);
+        return response.success(userVo);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(description="根据ID删除用")
+    public Response<Void> delete(@PathVariable Long id){
+        Response<Void> response = new Response<>();
+        if (userService.delete(id)) {
+            response.success();
+        } else {
+            response.fail("删除失败");
+        }
+        return response;
     }
 }
