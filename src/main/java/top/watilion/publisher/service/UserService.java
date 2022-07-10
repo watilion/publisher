@@ -17,7 +17,7 @@ public interface UserService extends IService<UserPo> {
      * @param username 用户名
      * @return 检查结果
      */
-    UserPo getByUserName(String username);
+    UserPo getByUsername(String username);
 
     /**
      * 根据用户ID获取用户信息

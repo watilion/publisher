@@ -28,11 +28,10 @@ import java.util.Objects;
 @Service
 public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements UserService {
     @Override
-    public UserPo getByUserName(String username) {
+    public UserPo getByUsername(String username) {
         LambdaQueryWrapper<UserPo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserPo::getUsername, username);
-        UserDao userDao = getBaseMapper();
-        List<UserPo> userPoList = userDao.selectList(lambdaQueryWrapper);
+        List<UserPo> userPoList = getBaseMapper().selectList(lambdaQueryWrapper);
         if (CollectionUtils.isEmpty(userPoList)) {
             return null;
         } else {
@@ -55,7 +54,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements Use
     }
 
     void checkUsername(String username) {
-        UserPo oldUserPo = this.getByUserName(username);
+        UserPo oldUserPo = this.getByUsername(username);
         if (oldUserPo == null) {
             return;
         }
