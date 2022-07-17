@@ -1,11 +1,9 @@
 package top.watilion.publisher.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import top.watilion.publisher.mapstruct.UserMapStruct;
@@ -53,12 +51,7 @@ public class UserController {
     @Operation(description = "分页查询用户信息")
     public Response<List<UserVo>> page(UserPageParams userPageParams) {
         Response<List<UserVo>> response = new Response<>();
-        Page<UserPo> userPoPage = new Page<>(userPageParams.getCurrent(), userPageParams.getPageSize());
-        LambdaQueryWrapper<UserPo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.like(StringUtils.isNotBlank(userPageParams.getName()), UserPo::getName, userPageParams.getName())
-                .like(StringUtils.isNotBlank(userPageParams.getUsername()), UserPo::getUsername, userPageParams.getUsername())
-                .eq(userPageParams.getStatus() != null, UserPo::getStatus, userPageParams.getStatus());
-        userPoPage = userService.page(userPoPage,queryWrapper);
+        Page<UserPo> userPoPage = userService.page(userPageParams);
         List<UserVo> userVoList = UserMapStruct.INSTANCE.poListToVoList(userPoPage.getRecords());
         return response.success(userVoList,userPoPage);
     }

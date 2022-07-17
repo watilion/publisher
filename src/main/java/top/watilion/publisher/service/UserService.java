@@ -1,6 +1,7 @@
 package top.watilion.publisher.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import top.watilion.publisher.params.UserPageParams;
 import top.watilion.publisher.po.UserPo;
 import top.watilion.publisher.vo.UserAddVo;
 import top.watilion.publisher.vo.UserUpdateVo;
@@ -10,7 +11,14 @@ import top.watilion.publisher.vo.UserVo;
  * @author watilion
  * @date 2022/6/7 22:54
  */
-public interface UserService extends IService<UserPo> {
+public interface UserService{
+
+    /**
+     * 分页查询
+     * @param userPageParams 查询参数
+     * @return 分页查询数据
+     */
+    Page<UserPo> page(UserPageParams userPageParams);
 
     /**
      * 根据用户名检查用户是否存在

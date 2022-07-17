@@ -12,8 +12,8 @@ import lombok.Data;
 public class BasePageParams {
 
     @Schema(description = "每页展示数",defaultValue = "10")
-    private long pageSize;
+    private long pageSize = 10;
 
     @Schema(description = "当前页数",defaultValue = "1")
-    private long current;
+    private long current = 1;
 }

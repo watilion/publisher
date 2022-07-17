@@ -1,8 +1,9 @@
 package top.watilion.publisher.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import top.watilion.publisher.constant.SystemConstant;
@@ -10,6 +11,7 @@ import top.watilion.publisher.dao.UserDao;
 import top.watilion.publisher.exception.BaseException;
 import top.watilion.publisher.exception.DuplicateException;
 import top.watilion.publisher.mapstruct.UserMapStruct;
+import top.watilion.publisher.params.UserPageParams;
 import top.watilion.publisher.po.UserPo;
 import top.watilion.publisher.service.UserService;
 import top.watilion.publisher.vo.UserAddVo;
@@ -26,12 +28,30 @@ import java.util.Objects;
 
 @Slf4j
 @Service
-public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements UserService {
+public class UserServiceImpl implements UserService {
+
+    private final UserDao userDao;
+
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public Page<UserPo> page(UserPageParams userPageParams) {
+        Page<UserPo> userPoPage = new Page<>(userPageParams.getCurrent(), userPageParams.getPageSize());
+        LambdaQueryWrapper<UserPo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(StringUtils.isNotBlank(userPageParams.getName()), UserPo::getName, userPageParams.getName())
+                .like(StringUtils.isNotBlank(userPageParams.getUsername()), UserPo::getUsername, userPageParams.getUsername())
+                .eq(userPageParams.getStatus() != null, UserPo::getStatus, userPageParams.getStatus());
+        userDao.selectPage(userPoPage,queryWrapper);
+        return userPoPage;
+    }
+
     @Override
     public UserPo getByUsername(String username) {
         LambdaQueryWrapper<UserPo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserPo::getUsername, username);
-        List<UserPo> userPoList = getBaseMapper().selectList(lambdaQueryWrapper);
+        List<UserPo> userPoList = userDao.selectList(lambdaQueryWrapper);
         if (CollectionUtils.isEmpty(userPoList)) {
             return null;
         } else {
@@ -41,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements Use
 
     @Override
     public UserVo getById(Long id) {
-        UserPo userPo = getBaseMapper().selectById(id);
+        UserPo userPo = userDao.selectById(id);
         return UserMapStruct.INSTANCE.poToVo(userPo);
     }
 
@@ -49,11 +69,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements Use
     public UserVo add(UserAddVo userAddVo) {
         this.checkUsername(userAddVo.getUsername());
         UserPo userPo = UserMapStruct.INSTANCE.userAddVoToPo(userAddVo);
-        getBaseMapper().insert(userPo);
+        int count = userDao.insert(userPo);
+        if (count == 0) {
+            return null;
+        }
         return getById(userPo.getId());
     }
 
-    void checkUsername(String username) {
+    private void checkUsername(String username) {
         UserPo oldUserPo = this.getByUsername(username);
         if (oldUserPo == null) {
             return;
@@ -71,7 +94,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements Use
 
     @Override
     public UserVo update(UserUpdateVo userUpdateVo) {
-        UserPo oldUserPo = getBaseMapper().selectById(userUpdateVo.getId());
+        UserPo oldUserPo = userDao.selectById(userUpdateVo.getId());
         if (oldUserPo == null) {
             log.warn("用户ID[{}]不存在", userUpdateVo.getId());
             throw new BaseException("用户ID不存在");
@@ -81,18 +104,18 @@ public class UserServiceImpl extends ServiceImpl<UserDao, UserPo> implements Use
             this.checkUsername(userUpdateVo.getUsername());
         }
         UserPo userPo = UserMapStruct.INSTANCE.userUpdateVoToPo(userUpdateVo);
-        getBaseMapper().updateById(userPo);
+        userDao.updateById(userPo);
         return this.getById(userUpdateVo.getId());
     }
 
     @Override
     public boolean delete(Long id) {
-        UserPo userPo = getBaseMapper().selectById(id);
+        UserPo userPo = userDao.selectById(id);
         if (userPo == null || Objects.equals(userPo.getStatus(), SystemConstant.SYSTEM_DELETED_VALUE)){
             log.warn("用户ID[{}]不存在，或已删除", id);
             throw new BaseException("用户ID不存在，或已删除");
         }
         userPo.setStatus(SystemConstant.SYSTEM_DELETED_VALUE);
-        return getBaseMapper().updateById(userPo) > 0;
+        return userDao.updateById(userPo) > 0;
     }
 }
