@@ -40,7 +40,6 @@ class UserServiceImplTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(UserServiceImplTest.class);
-//        ReflectionTestUtils.setField(userService, "baseMapper", userDao);
     }
 
     @Test
@@ -105,7 +104,7 @@ class UserServiceImplTest {
 
         //测试存在未删除用户
         Mockito.when(userDao.selectList(Mockito.any())).thenReturn(List.of(UserPo.builder()
-                .status(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build()));
+                .delFlag(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build()));
         try {
             userService.add(userAddVo);
         } catch (Exception e) {
@@ -113,7 +112,7 @@ class UserServiceImplTest {
         }
         //测试存在已删除用户
         Mockito.when(userDao.selectList(Mockito.any())).thenReturn(List.of(UserPo.builder()
-                .status(SystemConstant.SYSTEM_DELETED_VALUE).build()));
+                .delFlag(SystemConstant.SYSTEM_DELETED_VALUE).build()));
         try {
             userService.add(userAddVo);
         } catch (Exception e) {
@@ -152,7 +151,7 @@ class UserServiceImplTest {
         Mockito.when(userDao.selectById(id)).thenReturn(oldUserPo);
         //测试存在未删除用户
         Mockito.when(userDao.selectList(Mockito.any())).thenReturn(List.of(UserPo.builder()
-                .status(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build()));
+                .delFlag(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build()));
         try {
             userService.update(userUpdateVo);
         } catch (Exception e) {
@@ -160,7 +159,7 @@ class UserServiceImplTest {
         }
         //测试存在已删除用户
         Mockito.when(userDao.selectList(Mockito.any())).thenReturn(List.of(UserPo.builder()
-                .status(SystemConstant.SYSTEM_DELETED_VALUE).build()));
+                .delFlag(SystemConstant.SYSTEM_DELETED_VALUE).build()));
         try {
             userService.update(userUpdateVo);
         } catch (Exception e) {
@@ -185,17 +184,17 @@ class UserServiceImplTest {
             Assertions.assertInstanceOf(BaseException.class, e);
         }
         //测试删除用户为已删除
-        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().status(SystemConstant.SYSTEM_DELETED_VALUE).build());
+        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().delFlag(SystemConstant.SYSTEM_DELETED_VALUE).build());
         try {
             userService.delete(id);
         } catch (Exception e) {
             Assertions.assertInstanceOf(BaseException.class, e);
         }
         //测试删除用户为未删除
-        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().status(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build());
+        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().delFlag(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build());
         Mockito.when(userDao.updateById(Mockito.isA(UserPo.class))).thenReturn(1);
         Assertions.assertTrue(userService.delete(id));
-        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().status(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build());
+        Mockito.when(userDao.selectById(id)).thenReturn(UserPo.builder().delFlag(SystemConstant.SYSTEM_NOT_DELETED_VALUE).build());
         Mockito.when(userDao.updateById(Mockito.isA(UserPo.class))).thenReturn(0);
         Assertions.assertFalse(userService.delete(id));
     }

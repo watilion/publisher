@@ -43,7 +43,7 @@ public interface UserMapStruct {
     @Mapping(target = "lastLoginTime", expression = "java( java.time.LocalDateTime.now() )")
     @Mapping(target = "createTime", expression = "java( java.time.LocalDateTime.now())")
     @Mapping(target = "loginTimes", constant = "0")
-    @Mapping(target = "status", constant = "0")
+    @Mapping(target = "delFlag", constant = "0")
     @Mapping(target = "id", ignore = true)
     UserPo userAddVoToPo(UserAddVo userAddVo);
 
@@ -56,7 +56,7 @@ public interface UserMapStruct {
     @Mapping(target = "lastLoginTime", expression = "java( java.time.LocalDateTime.now() )")
     @Mapping(target = "createTime", expression = "java( java.time.LocalDateTime.now())")
     @Mapping(target = "loginTimes", constant = "0")
-    @Mapping(target = "status", constant = "0")
+    @Mapping(target = "delFlag", constant = "0")
     @Mapping(target = "id", source = "id")
     UserPo userUpdateVoToPo(UserUpdateVo userUpdateVo);
 }

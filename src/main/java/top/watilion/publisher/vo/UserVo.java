@@ -36,7 +36,7 @@ public class UserVo {
     private Integer locked;
 
     @Schema(description = "用户状态，0-未删除，1-已删除")
-    private Integer status;
+    private Integer delFlag;
 
     @Schema(description = "手机号")
     private String phone;

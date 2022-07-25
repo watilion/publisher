@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         LambdaQueryWrapper<UserPo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(StringUtils.isNotBlank(userPageParams.getName()), UserPo::getName, userPageParams.getName())
                 .like(StringUtils.isNotBlank(userPageParams.getUsername()), UserPo::getUsername, userPageParams.getUsername())
-                .eq(userPageParams.getStatus() != null, UserPo::getStatus, userPageParams.getStatus());
+                .eq(userPageParams.getDelFlag() != null, UserPo::getDelFlag, userPageParams.getDelFlag());
         userDao.selectPage(userPoPage,queryWrapper);
         return userPoPage;
     }
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
             return;
         }
         DuplicateException duplicateException ;
-        if (oldUserPo.getStatus() != null && Objects.equals(oldUserPo.getStatus(), SystemConstant.SYSTEM_NOT_DELETED_VALUE)) {
+        if (oldUserPo.getDelFlag() != null && Objects.equals(oldUserPo.getDelFlag(), SystemConstant.SYSTEM_NOT_DELETED_VALUE)) {
             log.warn("[{}]有同名用户，请重新填写用户名", username);
             duplicateException = new DuplicateException("当前有同名用户，请重新填写用户名");
         } else {
@@ -111,11 +111,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean delete(Long id) {
         UserPo userPo = userDao.selectById(id);
-        if (userPo == null || Objects.equals(userPo.getStatus(), SystemConstant.SYSTEM_DELETED_VALUE)){
+        if (userPo == null || Objects.equals(userPo.getDelFlag(), SystemConstant.SYSTEM_DELETED_VALUE)){
             log.warn("用户ID[{}]不存在，或已删除", id);
             throw new BaseException("用户ID不存在，或已删除");
         }
-        userPo.setStatus(SystemConstant.SYSTEM_DELETED_VALUE);
+        userPo.setDelFlag(SystemConstant.SYSTEM_DELETED_VALUE);
         return userDao.updateById(userPo) > 0;
     }
 }

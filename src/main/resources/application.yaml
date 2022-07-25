@@ -38,9 +38,3 @@ logging:
     top.watilion.publisher.dao: debug
   file:
     name: ${user.dir}/logs/publisher.log
-
-mybatis-plus:
-  global-config:
-    db-config:
-      logic-delete-field: del_flag
-      logic-not-delete-value: 0
