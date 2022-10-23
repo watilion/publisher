@@ -7,6 +7,11 @@ token:
   expireTime: 480
 
 spring:
+  application:
+    name: publisher
+  #默认环境配置
+  profiles:
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
@@ -37,4 +42,4 @@ logging:
     top.watilion.publisher.controller.UserController: info
     top.watilion.publisher.dao: debug
   file:
-    name: ${user.dir}/logs/publisher.log
+    name: ${user.dir}/logs/${spring.application.name}.log
